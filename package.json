@@ -1,0 +1,70 @@
+{
+  "name": "ecclesia-voter",
+  "description": "Voter CLI for E-cclesia voting protocol",
+  "version": "0.0.0",
+  "author": "Jonathan Levi @drummerjolev",
+  "bin": {
+    "ecclesia-voter": "./bin/run"
+  },
+  "bugs": "https://github.com/mohamedmlh/Ecclesia/issues",
+  "dependencies": {
+    "@oclif/command": "^1",
+    "@oclif/config": "^1",
+    "@oclif/plugin-help": "^2",
+    "ansible-vault": "^1.0.1",
+    "await-exec": "^0.1.2",
+    "babel-cli": "^6.26.0",
+    "bn": "^1.0.2",
+    "dotenv": "^8.2.0",
+    "ipfs": "^0.34.4",
+    "python-shell": "^1.0.7",
+    "snarkjs": "^0.1.20",
+    "truffle-contract": "^4.0.4",
+    "web3": "^1.0.0-beta.43"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "^1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0",
+    "eslint": "^5.13.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-oclif": "^3.1",
+    "eslint-plugin-import": "^2.16.0",
+    "globby": "^8"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "/bin",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json",
+    "/src"
+  ],
+  "homepage": "https://github.com/mohamedmlh/Ecclesia",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "MIT",
+  "main": "src/index.js",
+  "oclif": {
+    "commands": "./src/commands",
+    "bin": "ecclesia-voter",
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
+  },
+  "repository": "mohamedmlh/Ecclesia",
+  "scripts": {
+    "prep-migrate": "babel ./utils --out-dir ./migrations/gen/utils",
+    "ecclesia": "babel-node --trace-warnings ./bin/run",
+    "lint": "eslint ./",
+    "postpack": "rm -f oclif.manifest.json",
+    "posttest": "eslint .",
+    "prepack": "oclif-dev manifest && oclif-dev readme",
+    "test": "echo NO TESTS",
+    "version": "oclif-dev readme && git add README.md"
+  }
+}

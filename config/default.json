@@ -1,0 +1,18 @@
+{
+    "paths": {
+        "pythonPath":"C://ProgramData//Anaconda3//python.exe",
+        "script" : "timelock/timelockpuzzle"
+    },
+    "encryptArgs":{
+        "time": 3,
+        "squeringsPerSeconds": 76000
+    },
+    "commitArgsServer":{
+        "host":"localhost",
+        "port":8545,
+        "fromAddress":"0xc1091117F3294c970CdCF8c42e6b0AD8400380C5",
+        "privateKey":"0x8f655550d9809783fa867b7158a1622dfb50d9aea6b8b879337f6da9eaf37779"
+
+
+    }
+}
