@@ -1,5 +1,5 @@
 import { ContractLibrary, StorageLibrary} from '../../index';
-import { finished } from 'stream';
+
 import cli from 'cli-ux';
 const {Command, flags} = require('@oclif/command');
 var fs = require('fs');
@@ -53,7 +53,7 @@ class RevealCommand extends Command {
         instance = await new StorageLibrary().connectToStorage();
         const writtenValues = await instance.write('voteP', vP);
         const retrievedValues = await instance.read(writtenValues.hash);
-        this.log(retrievedValues);
+        
         if (vP !== retrievedValues) {
             throw `vote parameters could not be stored on IPFS`;
         }
@@ -61,10 +61,10 @@ class RevealCommand extends Command {
         // store IPFS hash on contract
         cli.action.start('📨  Submitting vote parameters hash to contract');
       
-        const submitVote = await OpeningContract.reveal(writtenValues.hash);
+        const feedback = await OpeningContract.reveal(writtenValues.hash);
       
         cli.action.stop()
-        this.log(`🎉  Success! You have successfully revealed your prims.`);
+        this.log(`🎉  Success! You have successfully revealed your primes.`);
 
     }
     catch(error)

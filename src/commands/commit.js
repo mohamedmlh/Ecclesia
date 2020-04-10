@@ -31,20 +31,27 @@ class CommitCommand extends Command {
       process.env.FROMADDRESS,
       process.env.PRIVATEKEY
     ).connectToCredentialGeneration();
+    const RSAAccContract = await new ContractLibrary(
+      process.env.HOST,
+      process.env.PORT,
+      process.env.FROMADDRESS,
+      process.env.PRIVATEKEY
+    ).connectToRSAAccumulatorContract();
 
-    const credentials = await credentialGenContract.getCredentials();
+
+    /*
+    const credentials = await credentialGenContract.getCredentials(0);
     const accBase = await credentialGenContract.getAccumulatorBase();
     const accModulus = await credentialGenContract.getAccumulatorModulus();
-    const acc = await credentialGenContract.getAccumulator();
-    //const  w = Acc(accBase,credentials,accModulus,process.env.CREDENTIAL)
-    //const a = w**process.env.CREDENTIAL % accModulus 
-    //this.log(`credentials : ${credentials.join(' ')}`);
+    const accumulator = await credentialGenContract.getAccumulator();
+    const witness = await RSAAccContract.getProofWet(process.env.CREDENTIAL , [1]);
     
+    this.log(`credentials are ${witness[0],witness[1],witness[2]}`);
     this.log(`accumulator base : ${accBase}`);
-
+    this.log(`accumulator  : ${accumulator}`);
     this.log(`accumulator Modulus : ${accModulus}`);
 
-    this.log(`accumulator : ${acc}`);
+    */
 
     
 
@@ -56,13 +63,12 @@ class CommitCommand extends Command {
     try {
       // Time Lock
       cli.action.start(`🔒  Locking your vote`);
+
       const pythonLibrary = new PythonLibrary(
-        // done HACK: pass in config
-       
         process.env.PYTHONPATH,
         process.env.SCRIPTPATH
-        
       ).connectToPython();
+
       // TODO: time + squarings per second should be set by EA
       const res = await pythonLibrary.encrypt(
        

@@ -4,6 +4,7 @@ import CredentialGeneration from './lib/contracts/credentialGeneration';
 import Commitment from './lib/contracts/commitment';
 import Registration from './lib/contracts/registration';
 import Opening from './lib/contracts/opening';
+import RSAAcc from './lib/contracts/rsaaccumulator';
 import Python from './lib/python';
 import Storage from './lib/storage';
 
@@ -14,6 +15,7 @@ const credentialGenerationJson = require(
 );
 const commitmentJson = require('./build/contracts/Commitment.json');
 const openingJson = require('./build/contracts/Opening.json');
+const rsaaccJson = require('./build/contracts/RSAAccumulator.json');
 // Library serves as initializer for all libs that interact with contracts
 // wraps singleton http provider and web3 objects
 export class ContractLibrary {
@@ -61,6 +63,15 @@ export class ContractLibrary {
       this.httpProvider,
       this.web3,
       openingJson,
+      this.fromAddress,
+      this.privateKey,
+    );
+  }
+  connectToRSAAccumulatorContract() {
+    return new RSAAcc(
+      this.httpProvider,
+      this.web3,
+      rsaaccJson,
       this.fromAddress,
       this.privateKey,
     );

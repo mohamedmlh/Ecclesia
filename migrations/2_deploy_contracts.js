@@ -11,6 +11,7 @@ const Registration = artifacts.require("./Registration.sol");
 const CredentialGeneration = artifacts.require("./CredentialGeneration.sol");
 const Commitment = artifacts.require("./Commitment.sol");
 const Opening = artifacts.require("./Opening.sol");
+const RSAAc = artifacts.require("./RSAAccumulator.sol");
 // Deployment Arguments
 // Registration
 const currentTime = parseInt((new Date().getTime() / 1000).toFixed(0));
@@ -39,8 +40,11 @@ const CredentialGenerationArgs = [
 const CommitmentArgs = [
 	currentTime + 19,
 	currentTime + 10000,
+	modulus,
 ];
-
+const RSAAcArgs = [
+	modulus
+];
 const OpeningArgs = [
 	currentTime + 19,
 	currentTime + 10000,
@@ -52,4 +56,5 @@ module.exports = (deployer, network, accounts) => {
 	deployer.deploy(CredentialGeneration, ...CredentialGenerationArgs);
 	deployer.deploy(Commitment, ...CommitmentArgs);
 	deployer.deploy(Opening, ...OpeningArgs);
+	deployer.deploy(RSAAc, ...RSAAcArgs);
 };

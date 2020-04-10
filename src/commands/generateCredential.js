@@ -42,10 +42,11 @@ class GenerateCredentialCommand extends Command {
     if (flags.generate) {
       // TODO: HACK, should be generated safely. For now, an arbitray prime.
       const votingCredential = 7151;
-      process.env.CREDENTIAL = votingCredential
+      process.env.CREDENTIAL = votingCredential;
       // WARNING: this does not work on local `truffle develop`, known issue
       // run on testnet
       const accumulator = await credGenContract.addToAccumulator(votingCredential);
+      //this.log(`voting credential is ${votingCredential}`);
       this.log(`🎩  After adding your voting credential, the accumulator is:
         ${accumulator}`);
       

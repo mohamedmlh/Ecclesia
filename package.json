@@ -2,7 +2,7 @@
   "name": "ecclesia-voter",
   "description": "Voter CLI for E-cclesia voting protocol",
   "version": "0.0.0",
-  "author": "Jonathan Levi @drummerjolev",
+  "author": "lesX",
   "bin": {
     "ecclesia-voter": "./bin/run"
   },

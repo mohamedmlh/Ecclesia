@@ -56,6 +56,21 @@ contract RSAAccumulator {
         return N;
     }
 
+
+    function getProofWet(uint256 credential, uint256 x)
+    public
+    view
+    returns (uint256[NlengthIn32ByteLimbs] memory b , uint256[NlengthIn32ByteLimbs] memory z, uint256 r) {
+        uint256[NlengthIn32ByteLimbs] memory nReadOnce = N;
+        uint256[NlengthIn32ByteLimbs] memory h = modularExp(emptyAccumulator, credential, nReadOnce);
+        z = modularExp(h, x, nReadOnce);
+        uint256 B = mapHashToPrime(keccak256(abi.encodePacked(h, z)));
+        uint256 exp = x / B;
+        b = modularExp(h, exp, nReadOnce);
+        r = x % B;
+        return (b,z,r);
+    }
+    
     // check that (g^w)^x = A
     // assume that all primes are valid, etc
     function checkInclusionProof(
@@ -124,6 +139,7 @@ contract RSAAccumulator {
         uint256[NlengthIn32ByteLimbs] memory aPlusB = modularExp(modularAdd(_a, _b, _m), 2, _m);
         uint256[NlengthIn32ByteLimbs] memory aMinusB = modularExp(modularSub(_a, _b, _m), 2, _m);
         uint256[NlengthIn32ByteLimbs] memory t = modularSub(aPlusB, aMinusB, _m);
+        //uint256[NlengthIn32ByteLimbs] memory result = divideBy2xxvalue(t,2); divide by 4
         return t;
     }
 
@@ -381,6 +397,114 @@ contract RSAAccumulator {
             output[i] = limb;
         }
         return output;
+    } 
+    function mapCoinToPrime(uint256 _id) public
+    view
+    returns (uint256 prime) {
+        // Sony's way to determine randomness :)
+        return 11;
+    }
+
+    function mapHashToPrime(bytes32 _hash) public
+    view
+    returns (uint256 prime) {
+        // Another Sony's way to determine randomness :)
+        return 17;
+    }
+    function includeCoin(uint256 _coinID) public 
+    returns (uint256[NlengthIn32ByteLimbs] memory newAcc) {
+        uint256 prime = mapCoinToPrime(_coinID);
+        newAcc = updateAccumulator(accumulator,prime);
+        for (uint256 i = 0; i < NlengthIn32ByteLimbs; i++) {
+            accumulator[i] = newAcc[i];
+        }
+        return newAcc;
+    }
+    
+    // vefity proof is Wesolowski scheme. Modular multiplication is not yet implemented, so proof can not be checked
+    function checkProofWes(
+        uint256 _coinID,
+        uint256[NlengthIn32ByteLimbs] memory b,
+        uint256[NlengthIn32ByteLimbs] memory z,
+        uint256 r)
+    public
+    view
+    returns (bool isValid) {
+        uint256[NlengthIn32ByteLimbs] memory nReadOnce = N;
+        uint256[NlengthIn32ByteLimbs] memory h = modularExp(emptyAccumulator, mapCoinToPrime(_coinID), nReadOnce);
+        uint256 B = mapHashToPrime(keccak256(abi.encodePacked(h, z))); // no mod N due to size difference
+        uint256[NlengthIn32ByteLimbs] memory b_B = modularExp(b, B, nReadOnce);
+        uint256[NlengthIn32ByteLimbs] memory h_R = modularExp(h, r, nReadOnce);
+        uint256[NlengthIn32ByteLimbs] memory lhs = modularMul4(b_B, h_R, nReadOnce);
+        uint256[NlengthIn32ByteLimbs] memory rhs = modularMulBy4(z, nReadOnce);
+        if (compare(lhs, rhs) != 0) {
+            return false;
+        }
+        return true;
+    }
+    /** @dev divideBy2xxvalue: divide 'dividend' by 2^'value'.
+      */
+    function divideBy2xxvalue(uint256[NlengthIn32ByteLimbs] memory dividend, uint value)
+    public view returns( uint256[NlengthIn32ByteLimbs] memory){
+        //TODO use memcpy for cheap rightshift where input is multiple of 8 (byte size)
+        uint256[NlengthIn32ByteLimbs] memory result;
+        uint word_shifted;
+        uint mask_shift = 256-value;
+        uint mask;
+        uint256 result_ptr;
+        uint256 length = NlengthInBytes;
+        uint256 memoryPointer = 0;
+        uint256 dataLength = 0;
+        assembly {
+            memoryPointer := mload(0x40)
+            mstore(memoryPointer,length)
+        }
+
+        uint256 limb = 0;
+        for (uint256 i = 0; i < NlengthIn32ByteLimbs; i++) {
+            limb = dividend[i];
+            dataLength += 0x20;
+            assembly {
+                mstore(add(memoryPointer, dataLength), limb)  // cycle over dividend
+            }
+        }
+        assembly {
+            result_ptr := add(memoryPointer, dataLength)
+        }
+
+        for(uint256 j = NlengthIn32ByteLimbs-1; j>=0;j--){                 //for each word:
+            assembly{
+                word_shifted := mload(result_ptr)               //get next word
+                switch eq(j,0)                               //if i==0:
+                case 1 { mask := 0 }                         // handles msword: no mask needed.
+                default { mask := mload(sub(result_ptr,0x20)) } // else get mask.
+            }
+            word_shifted >>= value;                            //right shift current by value
+            mask <<= mask_shift;                               // left shift next significant word by mask_shift
+            assembly{ mstore(result_ptr, or(word_shifted,mask)) } // store OR'd mask and shifted value in-place
+            result_ptr-=32;                                       // point to next value.
+        }
+        /*
+        assembly{
+            //the following code removes any leading words containing all zeroes in the result.
+            result_ptr := add(result_ptr,0x20)
+            for { }  eq(mload(result_ptr), 0) { } {
+               result_ptr := add(result_ptr, 0x20) //push up the start pointer for the result..
+               length  := sub(length,0x20) //and subtract a word (32 bytes) from the result length.
+            } 
+            result := sub(result_ptr,0x20)
+            mstore(result, length) 
+        }*/
+        limb = 0;
+        dataLength = 0x20; // skip length;
+        for (uint256 ii = 0; ii < NlengthIn32ByteLimbs; ii++) {
+            assembly {
+                limb := mload(add(result_ptr, dataLength))
+            }
+            result[ii] = limb;
+            dataLength += 0x20;
+        }
+        return result;
     }
 
 }
