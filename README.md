@@ -31,9 +31,12 @@ Breaking changes might occur.
 ## Authors
 
 * **Jonathan Levi** - @drummerjolev
+* **Mohamed Malhou** - @mohamedmlh
+* **Solène Gomez** 
+* **David Admete** 
+* **Anass Ben Bouazza** -@anassbenbouazza
 
-Thanks to [Myrto Arapinis](https://www.inf.ed.ac.uk/people/staff/Myrto_Arapinis.html), my project supervisor.
 
 ## License
 
-Free to use, re-distribute with attribution. Basically, be nice and don't be a jerk.
+Free to use, re-distribute with attribution.
